@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/opensight/static/css/main.716f1062.css",
+    "main.js": "/opensight/static/js/main.ec8201ad.js",
+    "static/js/453.f3ffcd52.chunk.js": "/opensight/static/js/453.f3ffcd52.chunk.js",
+    "index.html": "/opensight/index.html",
+    "main.716f1062.css.map": "/opensight/static/css/main.716f1062.css.map",
+    "main.ec8201ad.js.map": "/opensight/static/js/main.ec8201ad.js.map",
+    "453.f3ffcd52.chunk.js.map": "/opensight/static/js/453.f3ffcd52.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.716f1062.css",
+    "static/js/main.ec8201ad.js"
+  ]
+}
