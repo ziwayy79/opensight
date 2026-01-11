@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sift</string>
+    <string name="home_title">Sift</string>
+    <string name="home_subtitle">Accessibility Made Simple</string>
+    <string name="airpods_button">AirPods &amp; Sensory Shield</string>
+    <string name="airpods_description">Manage your AirPods settings and use Sensory Shield for sound filtering</string>
+    <string name="website_button">OpenSight Website</string>
+    <string name="website_description">Visit our website for more accessibility resources</string>
+    <string name="back">Back</string>
+    <string name="sensory_shield_title">Sensory Shield</string>
+    <string name="sensory_shield_description">Intelligent sound filtering for sensory comfort</string>
+</resources>
