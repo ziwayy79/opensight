@@ -1,0 +1,2 @@
+# Ignore debug and local files
+api_debug.py

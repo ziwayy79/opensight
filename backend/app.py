@@ -1,8 +1,33 @@
+#
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)  # Allows React frontend to communicate with backend
+
+# ROUTE 0: API key check endpoint
+@app.route('/api/check-key', methods=['GET'])
+def check_key():
+    if not api_key:
+        return jsonify({"ok": False, "error": "No API key loaded"}), 400
+    endpoint = "https://openrouter.ai/api/v1/models"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Accept": "application/json"
+    }
+    try:
+        resp = requests.get(endpoint, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            return jsonify({"ok": True, "message": "API key is valid!"})
+        else:
+            return jsonify({"ok": False, "error": f"Status {resp.status_code}: {resp.text}"}), 401
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
-from openai import OpenAI
+## from openai import OpenAI  # Not needed for direct OpenRouter API calls
 import os
 from dotenv import load_dotenv
 
@@ -13,16 +38,11 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # Allows React frontend to communicate with backend
 
-# Set up OpenRouter API 
+# Set up OpenRouter API
 api_key = os.getenv('OPENAI_API_KEY')
+print(f"Loaded API key: {api_key[:6]}..." if api_key else "No API key loaded!")
 if not api_key:
     print("Error: No OPENAI_API_KEY found in .env")
-    client = None
-else:
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://openrouter.io/api/v1"
-    )
 
 # ROUTE 1: Health check (test if backend is running)
 @app.route('/api/health', methods=['GET'])
@@ -171,11 +191,11 @@ def fetch_website_text(url):
 def summarize_with_ai(website_text):
     """Use OpenRouter API to summarize and extract key actions"""
     try:
-        if not client:
+        if not api_key:
             return "No API key configured", ["Add API key to .env"]
-        
+
         prompt = f"""You are helping someone with impaired vision navigate a website. 
-        
+
 Website content:
 {website_text}
 
@@ -198,7 +218,6 @@ SUMMARY: [your 2-3 sentence summary here]
 KEY_ACTIONS: [action 1]|[action 2]|[action 3]"""
 
         # Use only openai/gpt-3.5-turbo and the working endpoint
-        api_key = os.getenv('OPENAI_API_KEY')
         endpoint = "https://openrouter.ai/api/v1/chat/completions"
         model = "openai/gpt-3.5-turbo"
         headers = {
@@ -218,28 +237,28 @@ KEY_ACTIONS: [action 1]|[action 2]|[action 3]"""
         print(f"   Response headers: {dict(response.headers)}")
         print(f"   Response body (truncated): {response.text[:1000]}")
         if response.status_code != 200:
-            return "AI service error", ["Please try again"]
+            return f"AI service error: {response.text}", ["Please try again"]
         result = response.json()
         print(f"   Full OpenRouter JSON response: {result}")
         result_text = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-        
+
         # Parse the response
         lines = result_text.split('\n')
         summary = ""
         key_actions = []
-        
+
         for line in lines:
             if line.startswith('SUMMARY:'):
                 summary = line.replace('SUMMARY:', '').strip()
             elif line.startswith('KEY_ACTIONS:'):
                 actions_str = line.replace('KEY_ACTIONS:', '').strip()
                 key_actions = [action.strip() for action in actions_str.split('|') if action.strip()]
-        
+
         print(f"AI Summary: {summary}")
         print(f"Key Actions: {key_actions}")
-        
+
         return summary, key_actions
-    
+
     except Exception as e:
         print(f"Error with AI: {str(e)}")
         return "Error summarizing website", ["Please try again"]
@@ -247,6 +266,6 @@ KEY_ACTIONS: [action 1]|[action 2]|[action 3]"""
 
 # Run the backend
 if __name__ == '__main__':
-    print("Backend starting on http://localhost:5000")
+    print("Backend starting on http://localhost:3000")
     print("Press CTRL+C to stop")
     app.run(debug=True, port=5000)
